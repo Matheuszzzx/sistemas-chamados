@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum PersonRole {
+  REQUESTER
+  TECHNICIAN
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  CANCELED
+}
+
+model Person {
+  id               String     @id @default(cuid())
+  name             String     @db.VarChar(120)
+  email            String     @unique @db.VarChar(254)
+  passwordHash     String?    @db.VarChar(255)
+  role             PersonRole
+  active           Boolean    @default(true)
+  isAdmin          Boolean    @default(false)
+  requestedTickets Ticket[]   @relation("TicketRequester")
+  assignedTickets  Ticket[]   @relation("TicketTechnician")
+  comments         Comment[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model ProblemType {
+  id        String   @id @default(cuid())
+  name      String   @unique @db.VarChar(100)
+  active    Boolean  @default(true)
+  tickets   Ticket[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ticket {
+  id            String         @id @default(cuid())
+  title         String         @db.VarChar(100)
+  description   String   @db.Text
+  status        TicketStatus   @default(OPEN)
+  priority      TicketPriority @default(MEDIUM)
+  requesterId   String
+  requester     Person         @relation("TicketRequester", fields: [requesterId], references: [id], onDelete: Restrict)
+  technicianId  String?
+  technician    Person?        @relation("TicketTechnician", fields: [technicianId], references: [id], onDelete: Restrict)
+  problemTypeId String
+  problemType   ProblemType    @relation(fields: [problemTypeId], references: [id], onDelete: Restrict)
+  comments      Comment[]
+  resolvedAt    DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([status, priority])
+  @@index([problemTypeId])
+  @@index([technicianId, status])
+  @@index([requesterId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  authorId  String
+  author    Person   @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now())
+
+  @@index([ticketId, createdAt])
+  @@index([authorId])
+}
