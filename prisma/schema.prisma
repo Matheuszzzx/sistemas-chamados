@@ -35,6 +35,9 @@ model Person {
   role             PersonRole
   active           Boolean    @default(true)
   isAdmin          Boolean    @default(false)
+  version          Float      @default(1.0)
+  lastLogin        DateTime?  @default(now())
+  loginCount       Integer    @default(0)
   requestedTickets Ticket[]   @relation("TicketRequester")
   assignedTickets  Ticket[]   @relation("TicketTechnician")
   comments         Comment[]

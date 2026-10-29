@@ -23,6 +23,8 @@ export class PeopleService {
           email: dto.email,
           role: dto.role,
           passwordHash: await hash(dto.password, 12),
+          version: 1.0,
+          loginCount: 0,
         },
         select: {
           id: true,
@@ -31,6 +33,9 @@ export class PeopleService {
           role: true,
           active: true,
           isAdmin: true,
+          version: true,
+          lastLogin: true,
+          loginCount: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -49,6 +54,9 @@ export class PeopleService {
         role: true,
         active: true,
         isAdmin: true,
+        version: true,
+        lastLogin: true,
+        loginCount: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -59,7 +67,7 @@ export class PeopleService {
   findTechnicians() {
     return this.prisma.person.findMany({
       where: { role: 'TECHNICIAN', active: true },
-      select: { id: true, name: true, role: true },
+      select: { id: true, name: true, role: true, version: true, loginCount: true },
       orderBy: { name: 'asc' },
     });
   }
@@ -74,6 +82,9 @@ export class PeopleService {
         role: true,
         active: true,
         isAdmin: true,
+        version: true,
+        lastLogin: true,
+        loginCount: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -88,12 +99,13 @@ export class PeopleService {
     }
     await this.findOne(id);
     try {
-      const { password, ...data } = dto;
+      const { password, version, ...data } = dto;
       return await this.prisma.person.update({
         where: { id },
         data: {
           ...data,
           ...(password ? { passwordHash: await hash(password, 12) } : {}),
+          ...(version ? { version: parseFloat(version) } : {}),
         },
         select: {
           id: true,
@@ -102,6 +114,9 @@ export class PeopleService {
           role: true,
           active: true,
           isAdmin: true,
+          version: true,
+          lastLogin: true,
+          loginCount: true,
           createdAt: true,
           updatedAt: true,
         },

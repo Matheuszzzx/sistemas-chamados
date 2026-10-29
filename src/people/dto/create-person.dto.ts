@@ -16,9 +16,7 @@ export class CreatePersonDto {
   @MaxLength(120)
   name!: string;
 
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim().toLowerCase() : value,
-  )
+  @Transform(({ value }) => typeof value === 'string' ? value.trim().toLowerCase() : value)
   @IsEmail()
   @MaxLength(254)
   email!: string;
@@ -30,4 +28,10 @@ export class CreatePersonDto {
   @MinLength(12)
   @MaxLength(128)
   password!: string;
+
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(50)
+  version?: string;
 }

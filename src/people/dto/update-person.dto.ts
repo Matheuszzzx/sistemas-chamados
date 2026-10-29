@@ -2,7 +2,6 @@ import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
-  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
@@ -13,14 +12,11 @@ export class UpdatePersonDto {
   @IsOptional()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @IsString()
-  @IsNotEmpty()
   @MaxLength(120)
   name?: string;
 
   @IsOptional()
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim().toLowerCase() : value,
-  )
+  @Transform(({ value }) => typeof value === 'string' ? value.trim().toLowerCase() : value)
   @IsEmail()
   @MaxLength(254)
   email?: string;
@@ -34,4 +30,10 @@ export class UpdatePersonDto {
   @MinLength(12)
   @MaxLength(128)
   password?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @IsString()
+  @MaxLength(50)
+  version?: string;
 }
